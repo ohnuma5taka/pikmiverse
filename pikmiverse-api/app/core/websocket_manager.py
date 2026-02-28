@@ -17,8 +17,10 @@ class Connection:
 
 
 class WebsocketManager:
+    connection_map: dict[str, Connection]
+
     def __init__(self):
-        self.connection_map: dict[str, Connection] = {}
+        self.connection_map = {}
         url = "{schema}://{user_pass}{host}:{port}/0{query}".format(
             schema="rediss" if env.REDIS_SSL_CONNECTION else "redis",
             user_pass=(
