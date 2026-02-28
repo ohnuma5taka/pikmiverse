@@ -66,4 +66,4 @@ class MqttService:
         )
 
 
-mqtt_service = MqttService()
+# mqtt_service = MqttService()

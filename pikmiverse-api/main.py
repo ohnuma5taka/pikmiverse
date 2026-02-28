@@ -11,7 +11,6 @@ from app.core.logger import app_logger, request_id_ctx
 from app.core.timeout_middleware import TimeoutMiddleware
 from app.db.db import create_tables, init_schema
 from app.services.guest_service import GuestServiceDependency
-import seed
 
 
 @asynccontextmanager
@@ -94,14 +93,9 @@ async def check_healthy(service: GuestServiceDependency):
     )
 
 
-@app.post("/init-db", summary="DB初期化API", response_model=None)
-async def init_db():
-    seed.main(mode="dev")
-
-
-@app.get("/init-db", summary="DB初期化API", response_model=None)
-async def init_db2():
-    seed.main(mode="dev")
+@app.post("/init-data", summary="データ初期化API", response_model=None)
+async def init_data():
+    pass
 
 
 if __name__ == "__main__":

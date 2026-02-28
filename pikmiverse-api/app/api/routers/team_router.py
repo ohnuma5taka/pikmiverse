@@ -1,43 +1,55 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-from sqlmodel import Session
+from typing import Dict, Any
 
 from app.core.websocket_manager import websocket_manager
-from app.db.db import engine
-from app.models.mqtt_model import MqttData
-from app.models.team_model import TeamModel
-from app.services.mqtt_service import mqtt_service
-from app.services.team_service import TeamServiceDependency, get_team_service
 from app.utils import json_util
 
 router = APIRouter(prefix="/teams", tags=["チーム"])
 
+team_map: Dict[str, Dict[str, Any]] = {
+    "A": {"easy": False, "score": {}},
+    "B": {"easy": False, "score": {}},
+    "C": {"easy": True, "score": {}},
+}
 
-@router.get("", response_model=list[TeamModel])
-def get_items(service: TeamServiceDependency) -> list[TeamModel]:
-    return service.get_items()
+
+@router.get("", response_model=dict)
+def get_team_map() -> dict:
+    return team_map
 
 
-@router.get("/{name:str}", response_model=TeamModel)
-def get_item(name: str, service: TeamServiceDependency) -> TeamModel:
-    return service.get_one(id=name)
+@router.get("/init-data", response_model=dict)
+def init_data() -> dict:
+    return team_map
+
+
+@router.get("/{name:str}", response_model=dict)
+def get_team(name: str) -> dict:
+    team = team_map[name]
+    return {"name": name, "easy": team["easy"], "score": sum(team["score"].values())}
+
+
+@router.get("/{name:str}/score/{ws_id:str}", response_model=dict)
+def get_team_id(name: str, ws_id: str) -> dict:
+    score = team_map[name]["score"][ws_id]
+    scores = sorted(team_map[name]["score"].values(), reverse=True)
+    return {"score": score, "rank": scores.index(score) + 1}
 
 
 @router.websocket("/{name:str}")
 async def ws_item(name: str, websocket: WebSocket):
     try:
         await websocket_manager.connect(f"/{name}", websocket)
+        ws_id = websocket.headers.get("sec-websocket-key") or ""
+        team_map[name]["score"][ws_id] = 0
         while True:
             try:
                 req_str = await websocket.receive_text()
                 req_data = json_util.loads(req_str)["data"]
-                score = int(req_data["score"])
-                with Session(engine) as session:
-                    team_service = get_team_service(session)
-                    team = team_service.update_score(id=name, score=score)
-                    req_data["score"] = team.score
+                team_map[name]["score"][ws_id] += int(req_data["increment"])
+                req_data["id"] = ws_id
+                req_data["score"] = sum(team_map[name]["score"].values())
                 await websocket_manager.broadcast(f"/{name}", data=req_data)
-                data = MqttData(message=f"score: {team.score}")
-                mqtt_service.publish(data)
             except WebSocketDisconnect:
                 break
     finally:

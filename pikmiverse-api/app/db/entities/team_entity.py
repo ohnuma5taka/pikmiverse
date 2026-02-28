@@ -14,3 +14,4 @@ class Team(AppBaseEntity, table=True):
         sa_column=Column(String, primary_key=True),
     )
     score: int = Field(title="スコア", default=0)
+    easy: bool = Field(title="イージーモード", default=False)

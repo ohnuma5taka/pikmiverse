@@ -5,7 +5,7 @@ ENV PYTHONPATH=/app
 ENV TZ=Asia/Tokyo
 
 # tzdata をインストールしてタイムゾーンを設定
-RUN apt-get update && apt-get install -y tzdata && \
+RUN apt-get update && apt-get install -y tzdata vim redis-server && \
     ln -snf /usr/share/zoneinfo/Asia/Tokyo /etc/localtime && \
     echo "Asia/Tokyo" > /etc/timezone
 
@@ -28,11 +28,9 @@ RUN cp .env .env.tmp && \
 RUN pip install -U pip
 RUN pip install -r requirements.txt
 
-ENV APP_MODE=${APP_MODE}
-ENTRYPOINT ["/bin/sh", "-c", "\
-if [ \"$APP_MODE\" = 'dev' ]; then \
-  exec python main.py; \
-else \
-  exec uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4 --access-log; \
-fi"]
+EXPOSE 8000
 
+COPY redis.conf /usr/local/etc/redis/redis.conf
+RUN mkdir -p /usr/local/etc/redis/logs
+
+CMD service redis-server start && uvicorn main:app --host 0.0.0.0 --port 8000 --workers 2 --ws-ping-interval 20 --ws-ping-timeout 60
