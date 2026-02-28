@@ -1,63 +1,26 @@
+import asyncio
+
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
 from app.core.websocket_manager import websocket_manager
-from app.utils import json_util
+from app.core.constant import pikmiverse_command_map, pikmiverse_poor_light_commands
 
 router = APIRouter(prefix="/pikmiverse", tags=["装置"])
 
-devices = list(range(1, 17))
-pikmiverse_command_map = {
-    "turn_off_all": {"devices": devices, "action": "off", "parts": ["arm", "edge"]},
-    "open_all": {"devices": devices, "action": "open"},
-    "white_static_all": {
-        "devices": devices,
-        "action": "on",
-        "parts": ["arm"],
-        "color": "#ffffff",
-        "type": "static",
-    },
-    "rainbow_sparkle_all": {
-        "devices": devices,
-        "action": "on",
-        "parts": ["arm"],
-        "color": "rainbow",
-        "type": "sparkle",
-    },
-    "purple_sparkle_odd": {
-        "devices": [x for x in devices if x % 2 == 0],
-        "action": "on",
-        "parts": ["arm"],
-        "color": "#874da1",
-        "type": "sparkle",
-    },
-    "pink_sparkle_even": {
-        "devices": [x for x in devices if x % 2 == 0],
-        "action": "on",
-        "parts": ["arm"],
-        "color": "#ff59ac",
-        "type": "sparkle",
-    },
-    "static_white_value": {
-        "devices": [],  # 動的
-        "action": "on",
-        "parts": ["arm"],
-        "color": "#ffffff",
-        "type": "static",
-        "value": 0,  # 動的
-    },
-    "blink_rainbow_edge": {
-        "devices": [],  # 動的
-        "action": "on",
-        "parts": ["edge"],
-        "color": "rainbow",
-        "type": "blink",
-    },
-}
 
+@router.post("/{command:str}", response_model=None)
+async def post(command: str) -> None:
+    if command == "poor_light":
+        for cmd in pikmiverse_poor_light_commands:
+            for data in cmd["commands"]:
+                await websocket_manager.broadcast("/pikmiverse", data=data)
+                await asyncio.sleep(cmd["command_delay"])
+            await asyncio.sleep(cmd["delay"])
 
-@router.post("", response_model=None)
-async def post(body: dict) -> None:
-    await websocket_manager.broadcast("/pikmiverse", data=body)
+    else:
+        await websocket_manager.broadcast(
+            "/pikmiverse", data=pikmiverse_command_map[command]
+        )
 
 
 @router.websocket("")
@@ -66,9 +29,7 @@ async def ws(websocket: WebSocket):
         await websocket_manager.connect("/pikmiverse", websocket)
         while True:
             try:
-                req_str = await websocket.receive_text()
-                req_data = json_util.loads(req_str)
-                await websocket_manager.broadcast("/pikmiverse", data=req_data)
+                await websocket.receive_text()
             except WebSocketDisconnect:
                 break
     finally:

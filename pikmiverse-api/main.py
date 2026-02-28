@@ -93,11 +93,6 @@ async def check_healthy(service: GuestServiceDependency):
     )
 
 
-@app.post("/init-data", summary="データ初期化API", response_model=None)
-async def init_data():
-    pass
-
-
 if __name__ == "__main__":
     uvicorn.run(
         "main:app",

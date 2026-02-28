@@ -1,16 +1,13 @@
+import copy
+
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-from typing import Dict, Any
 
 from app.core.websocket_manager import websocket_manager
 from app.utils import json_util
+from app.core.constant import SUBMIT_UNIT_SCORE, TARGET_SCORE, pikmiverse_command_map
+from app.core.constant import team_map
 
 router = APIRouter(prefix="/teams", tags=["チーム"])
-
-team_map: Dict[str, Dict[str, Any]] = {
-    "A": {"easy": False, "score": {}},
-    "B": {"easy": False, "score": {}},
-    "C": {"easy": True, "score": {}},
-}
 
 
 @router.get("", response_model=dict)
@@ -18,9 +15,10 @@ def get_team_map() -> dict:
     return team_map
 
 
-@router.get("/init-data", response_model=dict)
-def init_data() -> dict:
-    return team_map
+@router.get("/init-data", response_model=None)
+def init_data() -> None:
+    for name in team_map:
+        team_map[name]["score"] = {}
 
 
 @router.get("/{name:str}", response_model=dict)
@@ -48,8 +46,23 @@ async def ws_item(name: str, websocket: WebSocket):
                 req_data = json_util.loads(req_str)["data"]
                 team_map[name]["score"][ws_id] += int(req_data["increment"])
                 req_data["id"] = ws_id
-                req_data["score"] = sum(team_map[name]["score"].values())
+                team_score = sum(team_map[name]["score"].values())
+                req_data["score"] = team_score
                 await websocket_manager.broadcast(f"/{name}", data=req_data)
+
+                if team_score >= team_map[name]["next_submit_score"]:
+                    team_map[name]["next_submit_score"] += SUBMIT_UNIT_SCORE
+                    data = copy.deepcopy(pikmiverse_command_map["static_white_value"])
+                    data["devices"] = [team_map[name]["device"]]
+                    data["value"] = min(team_score / TARGET_SCORE, 1)
+                    await websocket_manager.broadcast("/pikmiverse", data=data)
+
+                if team_score >= TARGET_SCORE and not team_map[name]["cleared"]:
+                    team_map[name]["cleared"] = True
+                    data = copy.deepcopy(pikmiverse_command_map["blink_rainbow_edge"])
+                    data["devices"] = [team_map[name]["device"]]
+                    await websocket_manager.broadcast("/pikmiverse", data=data)
+
             except WebSocketDisconnect:
                 break
     finally:

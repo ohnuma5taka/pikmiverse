@@ -25,6 +25,7 @@ export default defineConfig(({ command, mode }) => {
         "/ws": {
           target: `ws://localhost:8000/`,
           changeOrigin: true,
+          ws: true,
           rewrite: (path) => path.replace(/^\/ws/, "/"),
         },
       },
