@@ -13,7 +13,7 @@ export default defineConfig(({ command, mode }) => {
         "@": path.resolve(__dirname, "./src"),
       },
     },
-    assetsInclude: ["**/*.svg", "**/*.csv"],
+    assetsInclude: ["**/*.svg", "**/*.png", "**/*.mp4", "**/*.csv"],
     server: {
       host: true,
       proxy: {
