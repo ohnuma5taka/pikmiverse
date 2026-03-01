@@ -33,4 +33,4 @@ EXPOSE 8000
 COPY redis.conf /usr/local/etc/redis/redis.conf
 RUN mkdir -p /usr/local/etc/redis/logs
 
-CMD ["sh", "-c", "service redis-server start && uvicorn main:app --host 0.0.0.0 --port 8000 --workers 2 --ws-ping-interval 20 --ws-ping-timeout 60"]
+CMD ["sh", "-c", "service redis-server start && uvicorn main:app --host 0.0.0.0 --port 8000 --workers 2 --ws-ping-interval 20 --ws-ping-timeout 60 --loop uvloop --http httptools"]

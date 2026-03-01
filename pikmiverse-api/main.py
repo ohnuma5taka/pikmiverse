@@ -9,14 +9,10 @@ from app.api.api import api_router
 from app.core.env import env
 from app.core.logger import app_logger, request_id_ctx
 from app.core.timeout_middleware import TimeoutMiddleware
-from app.db.db import create_tables, init_schema
-from app.services.guest_service import GuestServiceDependency
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    init_schema()
-    create_tables()
     yield
 
 
@@ -85,9 +81,9 @@ async def logging_middleware(request: Request, call_next):
 
 
 @app.get("/", summary="ヘルスチェック", response_model=dict)
-async def check_healthy(service: GuestServiceDependency):
+async def check_healthy():
     return dict(
-        status="ok" if len(service.get_items()) > 0 else "No department saved",
+        status="ok",
         mode=env.APP_MODE,
         version=env.APP_VERSION,
     )
