@@ -3,7 +3,6 @@ from fastapi.websockets import WebSocketState
 import redis.asyncio as redis
 from fastapi import WebSocket, WebSocketDisconnect
 
-from app.core.env import env
 from app.utils import json_util
 
 
@@ -21,17 +20,7 @@ class WebsocketManager:
 
     def __init__(self):
         self.connection_map = {}
-        url = "{schema}://{user_pass}{host}:{port}/0{query}".format(
-            schema="rediss" if env.REDIS_SSL_CONNECTION else "redis",
-            user_pass=(
-                f"{env.REDIS_USERNAME}:{env.REDIS_PASSWORD}@"
-                if env.REDIS_SSL_CONNECTION
-                else ""
-            ),
-            host=env.REDIS_HOST,
-            port=env.REDIS_PORT,
-            query="?ssl_cert_reqs=none" if env.REDIS_SSL_CONNECTION else "",
-        )
+        url = "redis://localhost:6379/0"
         self.redis = redis.Redis.from_url(url, decode_responses=True)
 
     async def _subscribe(self, connection: Connection):
@@ -61,8 +50,8 @@ class WebsocketManager:
         connection.ready_event.set()
         self.connection_map[key] = connection
         await self.redis.setex(
-            f"nurse-voice-{env.APP_MODE}:ws-{key}",
-            env.REDIS_DATA_EXPIRY_SECOND,
+            f"pikmiverse:ws-{key}",
+            1,
             channel,
         )
 
@@ -80,7 +69,7 @@ class WebsocketManager:
                 except asyncio.CancelledError:
                     pass
             del self.connection_map[key]
-            await self.redis.delete(f"nurse-voice-{env.APP_MODE}:ws-{key}")
+            await self.redis.delete(f"pikmiverse:ws-{key}")
         if websocket.application_state != WebSocketState.DISCONNECTED:
             try:
                 await websocket.close()

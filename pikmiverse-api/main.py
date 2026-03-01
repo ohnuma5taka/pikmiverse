@@ -6,7 +6,6 @@ from starlette.middleware.cors import CORSMiddleware
 import uvicorn
 
 from app.api.api import api_router
-from app.core.env import env
 from app.core.logger import app_logger, request_id_ctx
 from app.core.timeout_middleware import TimeoutMiddleware
 
@@ -17,7 +16,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title=env.APP_NAME + ("" if env.APP_MODE == "prod" else f"-{env.APP_MODE}"),
+    title="pikmiverse",
     lifespan=lifespan,
 )
 
@@ -31,7 +30,7 @@ app.add_middleware(
 timeout_routes = {r"^/xxx/\d+/yyy$": 300}  # 特定のAPIのみタイムアウトを300秒に設定
 app.add_middleware(TimeoutMiddleware, timeout_routes=timeout_routes, default_timeout=30)
 
-app.include_router(api_router, prefix=env.API_PATH_PREFIX)
+app.include_router(api_router)
 
 
 @app.exception_handler(RequestValidationError)
@@ -82,11 +81,7 @@ async def logging_middleware(request: Request, call_next):
 
 @app.get("/", summary="ヘルスチェック", response_model=dict)
 async def check_healthy():
-    return dict(
-        status="ok",
-        mode=env.APP_MODE,
-        version=env.APP_VERSION,
-    )
+    return dict(status="ok")
 
 
 if __name__ == "__main__":

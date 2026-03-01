@@ -3,9 +3,6 @@ from contextvars import ContextVar
 import logging
 from logging.config import dictConfig
 
-from app.core.env import env
-
-
 request_id_ctx: ContextVar[str] = ContextVar("request_id", default="no-rid")
 
 
@@ -24,7 +21,7 @@ dictConfig(
         "filters": {"request_id": {"()": RequestIdFilter}},
         "formatters": {
             "default": {
-                "format": f"%(asctime)s.%(msecs)03d {'_'.join([env.APP_LOG_PREFIX, env.APP_MODE.upper()])}_%(levelname)-5s [%(request_id)s] %(message)s",
+                "format": "%(asctime)s.%(msecs)03d pikmiverse_%(levelname)-5s [%(request_id)s] %(message)s",
                 "datefmt": "%Y-%m-%dT%H:%M:%S",
             },
             "compact": {
