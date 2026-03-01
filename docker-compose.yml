@@ -15,9 +15,6 @@ services:
     platform: linux/arm64
     build:
       context: ./pikmiverse-api
-      args:
-        APP_MODE: prod
-        APP_VERSION: 1.0.0
     image: pikmiverse-api
     container_name: pikmiverse-api
     ports:

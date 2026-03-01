@@ -16,15 +16,6 @@ RUN apt-get update \
 
 COPY . .
 
-ARG APP_MODE
-COPY .env.${APP_MODE} .env
-COPY .env.db .env.db
-
-ARG APP_VERSION
-RUN cp .env .env.tmp && \
-    sed -i "s/__APP_VERSION__/${APP_VERSION}/g" .env && \
-    rm .env.tmp
-
 RUN pip install -U pip
 RUN pip install -r requirements.txt
 
