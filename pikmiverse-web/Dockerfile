@@ -9,7 +9,7 @@ RUN yarn build
 FROM nginx:1.25.2-alpine
 
 WORKDIR /app
-RUN rm /etc/nginx/conf.d/default.conf
+RUN rm -rf /etc/nginx/conf.d/default.conf
 COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 RUN apk update \
    && apk upgrade \
