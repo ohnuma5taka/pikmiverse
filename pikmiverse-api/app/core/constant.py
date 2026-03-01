@@ -9,6 +9,19 @@ team_map: Dict[str, Dict[str, Any]] = {
     "A": {"device": 1, "easy": False, **base_team},
     "B": {"device": 2, "easy": False, **base_team},
     "C": {"device": 3, "easy": True, **base_team},
+    "D": {"device": 4, "easy": False, **base_team},
+    "E": {"device": 5, "easy": False, **base_team},
+    "F": {"device": 6, "easy": False, **base_team},
+    "G": {"device": 7, "easy": False, **base_team},
+    "H": {"device": 8, "easy": False, **base_team},
+    "I": {"device": 9, "easy": False, **base_team},
+    "J": {"device": 10, "easy": False, **base_team},
+    "K": {"device": 11, "easy": False, **base_team},
+    "L": {"device": 12, "easy": False, **base_team},
+    "M": {"device": 13, "easy": False, **base_team},
+    "N": {"device": 14, "easy": False, **base_team},
+    "O": {"device": 15, "easy": False, **base_team},
+    "P": {"device": 16, "easy": False, **base_team},
 }
 
 devices = [x["device"] for x in team_map.values()]
@@ -30,14 +43,14 @@ pikmiverse_command_map: Dict[str, Dict[str, Any]] = {
         "type": "sparkle",
     },
     "purple_sparkle_odd": {
-        "devices": [x for x in devices if x % 2 == 0],
+        "devices": [x for x in devices if x <= 8],
         "action": "on",
         "parts": ["arm"],
         "color": "#874da1",
         "type": "sparkle",
     },
     "pink_sparkle_even": {
-        "devices": [x for x in devices if x % 2 == 0],
+        "devices": [x for x in devices if x >= 9],
         "action": "on",
         "parts": ["arm"],
         "color": "#ff59ac",
