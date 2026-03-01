@@ -29,39 +29,39 @@ services:
     networks:
       - pikmiverse-network
 
-  pikmiverse-redis:
-    platform: linux/arm64
-    build:
-      context: ./pikmiverse-redis
-    image: pikmiverse-redis
-    container_name: pikmiverse-redis
-    ports:
-      - "6379:6379"
-    networks:
-      - pikmiverse-network
+  # pikmiverse-redis:
+  #   platform: linux/arm64
+  #   build:
+  #     context: ./pikmiverse-redis
+  #   image: pikmiverse-redis
+  #   container_name: pikmiverse-redis
+  #   ports:
+  #     - "6379:6379"
+  #   networks:
+  #     - pikmiverse-network
 
-  pikmiverse-mqtt:
-    platform: linux/arm64
-    build:
-      context: ./pikmiverse-mqtt
-    image: pikmiverse-mqtt
-    container_name: pikmiverse-mqtt
-    ports:
-      - "1883:1883"
-      - "8883:8883"
-    networks:
-      - pikmiverse-network
+  # pikmiverse-mqtt:
+  #   platform: linux/arm64
+  #   build:
+  #     context: ./pikmiverse-mqtt
+  #   image: pikmiverse-mqtt
+  #   container_name: pikmiverse-mqtt
+  #   ports:
+  #     - "1883:1883"
+  #     - "8883:8883"
+  #   networks:
+  #     - pikmiverse-network
 
-  pikmiverse-db:
-    platform: linux/arm64
-    image: postgres:15-alpine
-    container_name: pikmiverse-db
-    env_file:
-      - ./pikmiverse-api/.env.db
-    ports:
-      - "5432:5432"
-    networks:
-      - pikmiverse-network
+  # pikmiverse-db:
+  #   platform: linux/arm64
+  #   image: postgres:15-alpine
+  #   container_name: pikmiverse-db
+  #   env_file:
+  #     - ./pikmiverse-api/.env.db
+  #   ports:
+  #     - "5432:5432"
+  #   networks:
+  #     - pikmiverse-network
 
 networks:
   pikmiverse-network:

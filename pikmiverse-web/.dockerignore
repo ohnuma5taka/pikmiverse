@@ -1,0 +1,10 @@
+.dockerignore
+Dockerfile
+node_modules
+guidelines/
+.DS_Store
+.editorconfig
+.git
+.gitattributes
+.gitignore
+.htmlhintrc
