@@ -15,7 +15,8 @@ export const getRank = async (
 };
 
 export const getTargetScore = async (): Promise<number> => {
-  return await api.get("/teams/target-score");
+  const response = await api.get("/teams/target-score");
+  return response.data;
 };
 
 export const initData = async (): Promise<void> => {
