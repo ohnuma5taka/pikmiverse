@@ -2,7 +2,7 @@ from typing import Dict, Any, List
 
 TARGET_SCORE = 15
 POOR_LIGHT_SCORE = 50
-SUBMIT_UNIT_SCORE = 5
+SUBMIT_UNIT_SCORE = TARGET_SCORE // 20
 
 base_team = {"score": {}, "cleared": False, "next_submit_score": SUBMIT_UNIT_SCORE}
 team_map: Dict[str, Dict[str, Any]] = {
