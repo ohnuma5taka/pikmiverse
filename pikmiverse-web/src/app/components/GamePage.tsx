@@ -81,7 +81,6 @@ export const GamePage: React.FC = () => {
   const gameStateRef = useRef<GameState>("start");
   const pikminsRef = useRef<GameEntity[]>([]);
   const enemyRef = useRef<EnemyEntity>(enemyDefaultRef);
-  const scoreRef = useRef(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const requestRef = useRef<number | null>(null);
   const lastTimeRef = useRef<number>(0);
@@ -181,7 +180,6 @@ export const GamePage: React.FC = () => {
 
   const startGame = () => {
     setGameState("playing");
-    scoreRef.current = 0;
     pikminsRef.current = [];
     enemyRef.current = enemyDefaultRef;
     setRenderPikmins([]);
@@ -358,11 +356,6 @@ export const GamePage: React.FC = () => {
       if (scoreIncrement > 0) {
         const multiplier = team?.easy ? 2 : 1;
         const totalIncrement = scoreIncrement * multiplier;
-
-        // 個人スコア更新
-        scoreRef.current += totalIncrement;
-
-        // チームスコアは「現在のteam.score + increment」を送信
         sendIncrement(totalIncrement);
       }
 
@@ -676,7 +669,7 @@ export const GamePage: React.FC = () => {
       )}
 
       {/* Settings Modal */}
-      {showSettings && (
+      {/* {showSettings && (
         <div
           className="absolute inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
           onClick={(e) => e.stopPropagation()}
@@ -794,7 +787,7 @@ export const GamePage: React.FC = () => {
             </div>
           </motion.div>
         </div>
-      )}
+      )} */}
 
       {/* Result Modal */}
       {gameState === "clear" && (
