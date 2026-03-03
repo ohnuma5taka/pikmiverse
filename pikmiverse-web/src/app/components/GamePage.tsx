@@ -10,6 +10,7 @@ import tutorial1Img from "@/assets/images/tutorial_1.png";
 import tutorial2Img from "@/assets/images/tutorial_2.png";
 import flowerImg from "@/assets/images/flower.png";
 import clearImg from "@/assets/images/clear.png";
+import pikminGlowImg from "@/assets/images/pikmin_glow.png";
 import pikminWalkGif from "@/assets/gifs/pikmin_walk.gif";
 import enemyGif from "@/assets/gifs/enemy.gif";
 import flowerIcon from "@/assets/icons/leaf-2-line.svg";
@@ -17,7 +18,7 @@ import flowerWhiteIcon from "@/assets/icons/leaf-2-line-white-small.svg";
 import timeIcon from "@/assets/icons/time-line.svg";
 import fingerTapIcon from "@/assets/icons/finger-tap-line.svg";
 import { Team } from "@/types/team.type";
-import { getRank, getTeam } from "@/api/api";
+import { getRank, getTargetScore, getTeam } from "@/api/api";
 
 // Game Constants
 const DEFAULT_PIKMIN_SPEED = 0.75;
@@ -27,7 +28,6 @@ const DEFAULT_ENEMY_WIDTH_PCT = 25.0; // %
 const ENEMY_MIN_Y = 30; // %
 const ENEMY_MAX_Y_FROM_BOTTOM = 50; // %
 const SPAWN_AREA_HEIGHT_PCT = 20; // %
-const TARGET_SCORE = 10; // クリア点数
 const MAX_ACTIVE_PIKMINS = 10;
 const TAP_SOUND_COUNT = 4;
 const BASE_COLOR = "#33324D";
@@ -57,6 +57,7 @@ export const GamePage: React.FC = () => {
   const [startTime, setStartTime] = useState<number>(Date.now());
   const [endTime, setEndTime] = useState<number>(Date.now());
   const [rank, setRank] = useState<number>(0);
+  const [targetScore, setTargetScore] = useState<number>(0);
   const [score, setScore] = useState<number>(0);
 
   // Settings
@@ -103,9 +104,11 @@ export const GamePage: React.FC = () => {
           return;
         }
 
+        const targetScore = await getTargetScore();
         const data = await getTeam(teamName);
+        setTargetScore(targetScore);
         setTeam(data);
-        if (data.score >= TARGET_SCORE) {
+        if (data.score >= targetScore) {
           setGameState("clear");
         }
       } catch (err) {
@@ -129,7 +132,7 @@ export const GamePage: React.FC = () => {
 
         // チーム合計更新
         setTeam((prev) => (prev ? { ...prev, score: data.score } : prev));
-        if (data.score >= TARGET_SCORE) {
+        if (data.score >= targetScore) {
           setGameState("clear");
         }
 
@@ -521,7 +524,7 @@ export const GamePage: React.FC = () => {
                 </span>
                 <div>
                   <span className="text-[#FFD500]">{team?.score ?? 0}</span>
-                  <span>/{TARGET_SCORE}</span>
+                  <span>/{targetScore}</span>
                 </div>
               </div>
             </div>
@@ -641,13 +644,21 @@ export const GamePage: React.FC = () => {
                     />
                   </motion.div>
                 ) : (
-                  <motion.div
-                    animate={{ y: [0, -3, 0] }}
-                    transition={{ duration: 0.3, repeat: Infinity }}
-                    className="relative"
-                  >
-                    <div className="absolute -top-[50%] left-1/2 -translate-x-1/2 w-[150%] h-[150%] bg-yellow-300 rounded-full blur-xl opacity-40 mix-blend-screen" />
-                    <div className="absolute -top-[20%] left-1/2 -translate-x-1/2 w-[60%] h-[60%] bg-white rounded-full blur-md opacity-80" />
+                  <motion.div className="relative pikmin-bounce">
+                    {/* 🔥 Glow Image */}
+                    <img
+                      src={pikminGlowImg}
+                      alt="glow"
+                      className="absolute left-1/2 -translate-x-1/2 pointer-events-none"
+                      style={{
+                        top: "-25%",
+                        maxWidth: "200%",
+                        opacity: 0.8,
+                        willChange: "transform",
+                      }}
+                    />
+
+                    {/* Pikmin本体 */}
                     <img
                       src={pikminWalkGif}
                       className="w-full h-auto relative z-10 brightness-110 contrast-125"

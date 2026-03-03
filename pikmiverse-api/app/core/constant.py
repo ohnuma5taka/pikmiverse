@@ -1,7 +1,7 @@
 from typing import Dict, Any, List
 
-TARGET_SCORE = 100
-POOR_LIGHT_SCORE = 30
+TARGET_SCORE = 15
+POOR_LIGHT_SCORE = 50
 SUBMIT_UNIT_SCORE = 5
 
 base_team = {"score": {}, "cleared": False, "next_submit_score": SUBMIT_UNIT_SCORE}
@@ -88,8 +88,8 @@ pikmiverse_poor_light_commands: List[Dict[str, Any]] = [
             }
             for x in range(poor_light_count)
         ],
-        "command_delay": 0.15,
-        "delay": 1,
+        "command_delay": 0.3,
+        "delay": 0.5,
     },
     {
         "commands": sum(
@@ -110,7 +110,7 @@ pikmiverse_poor_light_commands: List[Dict[str, Any]] = [
             [],
         ),
         "command_delay": 0.5,
-        "delay": 3,
+        "delay": 2,
     },
     {
         "commands": [
@@ -124,7 +124,7 @@ pikmiverse_poor_light_commands: List[Dict[str, Any]] = [
             }
             for x in range(poor_light_count)
         ],
-        "command_delay": 0.15,
+        "command_delay": 0.3,
         "delay": 0,
     },
 ]

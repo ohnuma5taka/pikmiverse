@@ -15,6 +15,11 @@ def get_team_map() -> dict:
     return team_map
 
 
+@router.get("/target-score", response_model=int)
+def get_target_score() -> int:
+    return TARGET_SCORE
+
+
 @router.get("/init-data", response_model=None)
 def init_data() -> None:
     for name in team_map:
