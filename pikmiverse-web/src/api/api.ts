@@ -8,9 +8,9 @@ export const getTeam = async (name: string): Promise<Team> => {
 
 export const getRank = async (
   name: string,
-  wsId: string,
+  userId: string,
 ): Promise<{ score: number; rank: number }> => {
-  const res = await api.get(`/teams/${name}/score/${wsId}`);
+  const res = await api.get(`/teams/${name}/score/${userId}`);
   return res.data;
 };
 

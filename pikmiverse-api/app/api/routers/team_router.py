@@ -39,18 +39,17 @@ def get_team_id(name: str, ws_id: str) -> dict:
     return {"score": score, "rank": scores.index(score) + 1}
 
 
-@router.websocket("/{name:str}")
-async def ws_item(name: str, websocket: WebSocket):
+@router.websocket("/{name:str}/{user_id:str}")
+async def ws_item(name: str, user_id: str, websocket: WebSocket):
     try:
         await websocket_manager.connect(f"/{name}", websocket)
-        ws_id = websocket.headers.get("sec-websocket-key") or ""
-        team_map[name]["score"][ws_id] = 0
+        team_map[name]["score"][user_id] = 0
         while True:
             try:
                 req_str = await websocket.receive_text()
                 req_data = json_util.loads(req_str)["data"]
-                team_map[name]["score"][ws_id] += int(req_data["increment"])
-                req_data["id"] = ws_id
+                team_map[name]["score"][user_id] += int(req_data["increment"])
+                req_data["id"] = user_id
                 team_score = sum(team_map[name]["score"].values())
                 req_data["score"] = team_score
                 await websocket_manager.broadcast(f"/{name}", data=req_data)

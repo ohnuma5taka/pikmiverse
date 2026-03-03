@@ -52,6 +52,7 @@ type GameState = "start" | "tutorial-1" | "tutorial-2" | "playing" | "clear";
 
 export const GamePage: React.FC = () => {
   const { playSound, toggleBgm, isBgmPlaying, initAudio } = useSound();
+  const [userId, setUserId] = useState<string>("");
   const [gameState, setGameState] = useState<GameState>("start");
   const [team, setTeam] = useState<Team | null>(null);
   const [startTime, setStartTime] = useState<number>(Date.now());
@@ -86,13 +87,18 @@ export const GamePage: React.FC = () => {
   const lastTimeRef = useRef<number>(0);
   const configRef = useRef(config);
   const wsRef = useRef<WebSocket | null>(null);
-  const wsIdRef = useRef<string | null>(null);
 
   // Render State
   const [renderPikmins, setRenderPikmins] = useState<GameEntity[]>([]);
   const [renderEnemy, setRenderEnemy] = useState<EnemyEntity>(enemyDefaultRef);
 
   useEffect(() => {
+    let userId = sessionStorage.getItem("userId");
+    if (!userId) {
+      userId = crypto.randomUUID();
+      sessionStorage.setItem("userId", userId);
+    }
+
     const fetchTeam = async () => {
       try {
         const params = new URLSearchParams(window.location.search);
@@ -120,8 +126,7 @@ export const GamePage: React.FC = () => {
 
   useEffect(() => {
     if (!team?.name) return;
-
-    const wsUrl = `ws://${window.location.host}/ws/teams/${team.name}`;
+    const wsUrl = `ws://${window.location.host}/ws/teams/${team.name}/${userId}`;
     const ws = new WebSocket(wsUrl);
     wsRef.current = ws;
     ws.onmessage = (event) => {
@@ -133,11 +138,6 @@ export const GamePage: React.FC = () => {
         setTeam((prev) => (prev ? { ...prev, score: data.score } : prev));
         if (data.score >= targetScore) {
           setGameState("clear");
-        }
-
-        // 自分のID確定
-        if (!wsIdRef.current && data.id) {
-          wsIdRef.current = data.id;
         }
       } catch (err) {
         console.error("WS parse error", err);
@@ -188,9 +188,9 @@ export const GamePage: React.FC = () => {
   };
 
   const fetchRank = async () => {
-    if (team?.name && wsIdRef.current) {
+    if (team?.name && userId) {
       try {
-        const result = await getRank(team.name, wsIdRef.current);
+        const result = await getRank(team.name, userId);
         setRank(result.rank);
         setScore(result.score);
       } catch (err) {
