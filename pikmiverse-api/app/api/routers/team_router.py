@@ -32,9 +32,9 @@ def get_team(name: str) -> dict:
     return {"name": name, "easy": team["easy"], "score": sum(team["score"].values())}
 
 
-@router.get("/{name:str}/score/{ws_id:str}", response_model=dict)
-def get_team_id(name: str, ws_id: str) -> dict:
-    score = team_map[name]["score"][ws_id]
+@router.get("/{name:str}/score/{user_id:str}", response_model=dict)
+def get_team_id(name: str, user_id: str) -> dict:
+    score = team_map[name]["score"][user_id]
     scores = sorted(team_map[name]["score"].values(), reverse=True)
     return {"score": score, "rank": scores.index(score) + 1}
 
