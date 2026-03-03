@@ -52,7 +52,6 @@ type GameState = "start" | "tutorial-1" | "tutorial-2" | "playing" | "clear";
 
 export const GamePage: React.FC = () => {
   const { playSound, toggleBgm, isBgmPlaying, initAudio } = useSound();
-  const [userId, setUserId] = useState<string>("");
   const [gameState, setGameState] = useState<GameState>("start");
   const [team, setTeam] = useState<Team | null>(null);
   const [startTime, setStartTime] = useState<number>(Date.now());
@@ -92,13 +91,16 @@ export const GamePage: React.FC = () => {
   const [renderPikmins, setRenderPikmins] = useState<GameEntity[]>([]);
   const [renderEnemy, setRenderEnemy] = useState<EnemyEntity>(enemyDefaultRef);
 
-  useEffect(() => {
+  const getUserId = () => {
     let userId = sessionStorage.getItem("userId");
     if (!userId) {
       userId = crypto.randomUUID();
       sessionStorage.setItem("userId", userId);
     }
+    return userId;
+  };
 
+  useEffect(() => {
     const fetchTeam = async () => {
       try {
         const params = new URLSearchParams(window.location.search);
@@ -126,6 +128,7 @@ export const GamePage: React.FC = () => {
 
   useEffect(() => {
     if (!team?.name) return;
+    const userId = getUserId();
     const wsUrl = `ws://${window.location.host}/ws/teams/${team.name}/${userId}`;
     const ws = new WebSocket(wsUrl);
     wsRef.current = ws;
@@ -188,6 +191,7 @@ export const GamePage: React.FC = () => {
   };
 
   const fetchRank = async () => {
+    const userId = getUserId();
     if (team?.name && userId) {
       try {
         const result = await getRank(team.name, userId);
