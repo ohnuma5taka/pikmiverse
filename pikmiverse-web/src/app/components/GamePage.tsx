@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Ghost, Settings, X } from "lucide-react";
+import { v4 as uuidv4 } from "uuid";
 import { StartScreen } from "./StartScreen";
 import { SoundType, useSound } from "./SoundContext";
 import pikminGhostImg from "@/assets/images/pikmin_ghost.png";
@@ -94,7 +95,7 @@ export const GamePage: React.FC = () => {
   const getUserId = () => {
     let userId = sessionStorage.getItem("userId");
     if (!userId) {
-      userId = crypto.randomUUID();
+      userId = uuidv4();
       sessionStorage.setItem("userId", userId);
     }
     return userId;
