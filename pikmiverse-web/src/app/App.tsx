@@ -8,7 +8,13 @@ export default function App() {
   return (
     <BrowserRouter>
       <SoundProvider>
-        <div className="w-full h-screen bg-black overflow-hidden select-none">
+        <div
+          className="bg-black overflow-hidden select-none"
+          style={{
+            height: "100dvh",
+            width: "100vw",
+          }}
+        >
           <Routes>
             {/* ルートアクセス時にリダイレクト */}
             <Route path="/" element={<Navigate to="/pikmiverse" replace />} />

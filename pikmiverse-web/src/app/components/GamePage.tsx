@@ -403,6 +403,9 @@ export const GamePage: React.FC = () => {
         className="absolute inset-0 bg-no-repeat bg-contain bg-center"
         style={{
           backgroundImage: `url(${BackgroundImg})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
         }}
       />
 
